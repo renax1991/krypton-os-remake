@@ -1,18 +1,40 @@
 /*! \file kmalloc.c */
 
+/* Krypton OS kernel heap implementation
+
+   Description: This file implements the kmalloc()/kfree()
+   interface to be used in Krypton OS, using a free list
+   mechanism with automated memory chunk coalescence and
+   integrity testing.
+   
+   TODO: Implement deferred merge_heap() calls, eg. in the
+   idle task, to allow constant-time freeing. */
+
 #include "kmalloc.h"
 #include "syscalls.h"
 #include "mm.h"
 
+/* Virtual memory heap starting address */
 #define HEAP_START       (unsigned long)     0xC0400000
 
 list_head_t k_heap_start;
 uint32_t k_heap_end;
 
+/* Static prototypes */
+
 static void insert_chunk(chunk_t * chunk);
 static void merge_heap();
 static void merge_heap(chunk_t *aux);
 
+
+/* kkeap_init()
+   Description: This function initialises the kernel heap
+   
+   Parameters: none
+   Returns: none
+   Notes:
+   TODO: set here the system calls!
+*/
 void
 kheap_init () {
     new_list((list_head_t *) &k_heap_start);
